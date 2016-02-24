@@ -6,74 +6,22 @@
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     
-    <script>
+    <script src="calc.js"></script>
     
-      var salary = new Object(),
-          yearlyWages = new Object();
-
-      
-      $(document).ready(function() {
-        
-        // hide organizer inputs
-        
-        $("#organizer-panel").next().hide();
-        
-        $("#organizer-panel").click( function() {
-          $(this).next().toggle();
-          
-        });
-        
-        // run calculation on input
-        
-        $("#hourlyRate, #avgWeeklyHours").change(function(){
-          
-          dues = new Array();
-          
-          var rate = $("#hourlyRate").val(),
-              hours =$("#avgWeeklyHours").val();
-              
-          salary.current = rate * hours * 52;
-          
-          // change in yearly wages based on organizer inputs
-          
-          yearlyWages.yearOne = rate * (1 + Number($("#yearOne").val()));
-          yearlyWages.yearTwo = yearlyWages.yearOne * (1 + Number($("#yearTwo").val()));
-          yearlyWages.yearThree = yearlyWages.yearTwo * (1 + Number($("#yearThree").val()));
-          yearlyWages.yearFour = yearlyWages.yearThree * (1 + Number($("#yearFour").val()));
-          yearlyWages.yearFive = yearlyWages.yearFour * (1 + Number($("#yearFive").val()));
-          
-          // predicted salaries based on change in wages
-          
-          salary.yearOne = yearlyWages.yearOne * hours * 52;
-          salary.yearTwo = yearlyWages.yearTwo * hours * 52;
-          salary.yearThree = yearlyWages.yearThree * hours * 52;
-          salary.yearFour = yearlyWages.yearFour * hours * 52;
-          salary.yearFive = yearlyWages.yearFive * hours * 52;
-          
-          // calculating monthly dues
-          
-          for (var i in salary) {
-            
-            if(!salary.hasOwnProperty(i)) continue;
-            
-            if ((salary[i] * .02)/12 < 33.5) {
-              dues.push(33.5);
-            } else if ((salary[i] * .02)/12 > 144) {
-              dues.push(144);
-            } else { dues.push((salary[i] * .02)/12); }
-          }
-          
-          // subtract monthly dues from salary
-          
-        })
-        
-      })
-      
-      
-    </script>
     <style>
+      .panel-heading { font-size: 24px; }
       label { padding: 12px;}
+      #worker label { width: 225px; }
+      div.resultsTableDiv { padding: 24px; }
+      #myDiv {
+        width: 500px;
+        height: 400px;
+        text-align: center;
+        margin: 0 auto;
+      }
+      .svg-container { margin: 0 auto !important; }
     </style>
   </head>
   <body>
@@ -85,7 +33,7 @@
       
       <h3>Worker Inputs</h3>
       <div class="well well-lg">
-        <form role="form" id="worker" class="form-inline text-center">
+        <form role="form" id="worker" class="form-inline">
         	<div class="form-group">
         	  <label for="hourlyRate">Current Hourly Rate</label>
             <input type="number" class="form-control input-lg" id="hourlyRate" value=""  step="0.1" required>
@@ -103,7 +51,8 @@
       
       <div class="panel panel-default">
       
-      <div class="panel-heading" id="organizer-panel">Organizer Inputs</div>
+      <div class="panel-heading" id="organizer-panel">Organizer Inputs <span class="pull-right">
+                                <span class="glyphicon glyphicon-menu-hamburger"></span></div>
       
         <div class="panel-body">
   
@@ -148,21 +97,76 @@
         
         </div>
       
-      </div>
-      
-      <!-- END ORGANIZER INPUTS -->
+      </div><!-- END ORGANIZER INPUTS DIV -->
       
       <!-- RESULTS -->
       
       <div class="panel panel-default">
         
-        <div class="panel-heading">Results</div>
+        <div class="panel-heading" id="results">Results <span class="pull-right">
+                                <span class="glyphicon glyphicon-menu-hamburger"></span></span></div>
         
         <div class="panel-body">
           
+          <!-- TABLE WITH INCREASES -->
           
+          <div class="col-md-6">
+          
+            <div class="table-responsive resultsTableDiv">
+              <table class="table table-striped" id="resultsTable">
+                 <tbody>
+                <tr>
+                  <td class="yearOne">Year 1 Increase</td>
+                  <td class="yearOne" id="increaseOne"></td>
+                </tr>
+                <tr>
+                  <td class="yearTwo">Year 2 Increase</td>
+                  <td class="yearTwo" id="increaseTwo"></td>
+                </tr>
+                <tr>
+                  <td class="yearThree">Year 3 Increase</td>
+                  <td class="yearThree" id="increaseThree"></td>
+                </tr>
+                <tr>
+                  <td class="yearFour">Year 4 Increase</td>
+                  <td class="yearFour" id="increaseFour"></td>
+                </tr>
+                <tr>
+                  <td class="yearFive">Year 5 Increase</td>
+                  <td class="yearFive" id="increaseFive"></td>
+                </tr>
+                <tr>
+                  <td><strong>Total Increase</strong></td>
+                  <td id="totalIncrease"></td>
+                </tr>
+                </tbody>
+              </table>
+              
+              <p>*Note: the amounts above are estimates, and do not include overtime, differentials, bonuses or other types of pay.  Dues are subtracted from totals.  Actual amounts will vary.</p>
+            </div>
+            
+          </div>
+        
+          <!-- PLOT RAISES -->
+          <div class="col-md-6">
+            
+            <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+            
+          </div>
+
         </div>
         
+      </div><!-- END RESULTS DIV -->
+      
+      <!-- LEARN MORE FORM -->
+      
+      <div class="panel panel-default">
+        
+        <div class="panel-heading" id="learnmore">Learn More <span class="pull-right">
+                                <span class="glyphicon glyphicon-menu-hamburger"></span></span></div>
+        
+        <div class="panel-body">
+        </div>
       </div>
       
       </main>
