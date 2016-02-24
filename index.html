@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    
+    <script>
+    
+      var salary = new Object(),
+          yearlyWages = new Object();
+
+      
+      $(document).ready(function() {
+        
+        // hide organizer inputs
+        
+        $("#organizer-panel").next().hide();
+        
+        $("#organizer-panel").click( function() {
+          $(this).next().toggle();
+          
+        });
+        
+        // run calculation on input
+        
+        $("#hourlyRate, #avgWeeklyHours").change(function(){
+          
+          dues = new Array();
+          
+          var rate = $("#hourlyRate").val(),
+              hours =$("#avgWeeklyHours").val();
+              
+          salary.current = rate * hours * 52;
+          
+          // change in yearly wages based on organizer inputs
+          
+          yearlyWages.yearOne = rate * (1 + Number($("#yearOne").val()));
+          yearlyWages.yearTwo = yearlyWages.yearOne * (1 + Number($("#yearTwo").val()));
+          yearlyWages.yearThree = yearlyWages.yearTwo * (1 + Number($("#yearThree").val()));
+          yearlyWages.yearFour = yearlyWages.yearThree * (1 + Number($("#yearFour").val()));
+          yearlyWages.yearFive = yearlyWages.yearFour * (1 + Number($("#yearFive").val()));
+          
+          // predicted salaries based on change in wages
+          
+          salary.yearOne = yearlyWages.yearOne * hours * 52;
+          salary.yearTwo = yearlyWages.yearTwo * hours * 52;
+          salary.yearThree = yearlyWages.yearThree * hours * 52;
+          salary.yearFour = yearlyWages.yearFour * hours * 52;
+          salary.yearFive = yearlyWages.yearFive * hours * 52;
+          
+          // calculating monthly dues
+          
+          for (var i in salary) {
+            
+            if(!salary.hasOwnProperty(i)) continue;
+            
+            if ((salary[i] * .02)/12 < 33.5) {
+              dues.push(33.5);
+            } else if ((salary[i] * .02)/12 > 144) {
+              dues.push(144);
+            } else { dues.push((salary[i] * .02)/12); }
+          }
+          
+          // subtract monthly dues from salary
+          
+        })
+        
+      })
+      
+      
+    </script>
+    <style>
+      label { padding: 12px;}
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      
+      <h1>Calculator Title</h1>
+      
+      <!-- WORKER INPUTS -->
+      
+      <h3>Worker Inputs</h3>
+      <div class="well well-lg">
+        <form role="form" id="worker" class="form-inline text-center">
+        	<div class="form-group">
+        	  <label for="hourlyRate">Current Hourly Rate</label>
+            <input type="number" class="form-control input-lg" id="hourlyRate" value=""  step="0.1" required>
+          </div>
+        	<div class="form-group">
+        	  <label for="avgWeeklyHours">Average Weekly Hours</label>
+            <input type="number" class="form-control input-lg" id="avgWeeklyHours" value="" step="0.1" required>
+          </div>
+        </form>
+      </div>
+      
+      <!-- END WORKER INPUTS -->
+
+      <!-- ORGANIZER INPUTS -->
+      
+      <div class="panel panel-default">
+      
+      <div class="panel-heading" id="organizer-panel">Organizer Inputs</div>
+      
+        <div class="panel-body">
+  
+        <form role="form" id="organizer" class="form-horizontal">
+
+        	<div class="form-group">
+        	  <label for="yearOne" class="control-label col-sm-2">Year One</label>
+        	  <div class="col-sm-10">
+            <input type="number" class="form-control" id="yearOne" value="0.03" step="0.01" required>
+            </div>
+          </div>
+          
+        	<div class="form-group">
+        	  <label for="yearTwo" class="control-label col-sm-2">Year Two</label>
+        	  <div class="col-sm-10">
+            <input type="number" class="form-control" id="yearTwo" value="0.03" step="0.01" required>
+            </div>
+          </div>
+  
+        	<div class="form-group">
+        	  <label for="yearThree" class="control-label col-sm-2">Year Three</label>
+        	  <div class="col-sm-10">
+            <input type="number" class="form-control" id="yearThree" value="0.03" step="0.01" required>
+            </div>
+          </div>
+  
+        	<div class="form-group">
+        	  <label for="yearFour" class="control-label col-sm-2">Year Four</label>
+        	  <div class="col-sm-10">
+            <input type="number" class="form-control" id="yearFour" value="0.00" step="0.01" required>
+            </div>
+          </div>
+  
+        	<div class="form-group">
+        	  <label for="yearFive" class="control-label col-sm-2">Year Five</label>
+        	  <div class="col-sm-10">
+            <input type="number" class="form-control" id="yearFive" value="0.00" step="0.01" required>
+            </div>
+          </div>
+
+        </form>
+        
+        </div>
+      
+      </div>
+      
+      <!-- END ORGANIZER INPUTS -->
+      
+      <!-- RESULTS -->
+      
+      <div class="panel panel-default">
+        
+        <div class="panel-heading">Results</div>
+        
+        <div class="panel-body">
+          
+          
+        </div>
+        
+      </div>
+      
+      </main>
+  </body>
+</html>
